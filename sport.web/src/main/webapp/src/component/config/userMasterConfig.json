@@ -1,0 +1,11 @@
+{
+    "displayName" : "User",
+    "name" : "user",
+    "templateName" : "user",
+    "url" : "user.html",
+    "server": "localhost:8080",
+    "server": "localhost:8080",
+    "context": "/sport.web/webresources/UserMaster",
+    
+    "el" : "#main"
+}

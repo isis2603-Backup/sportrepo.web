@@ -1,0 +1,101 @@
+<script type="text/template" id="userList">
+    <div class="panel panel-default">
+    <!-- Default panel contents -->
+    <table class="table striped">
+    <thead>
+    <tr>
+		 <th>User Name</th>
+		 <th>First Name</th>
+		 <th>Last Name</th>
+		 <th>Birth Date</th>
+		 <th>Enable</th>
+		 <th>Doc Number</th>
+		 <th>Documenttype Id</th>
+		 <th>Role Id</th>
+    <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% _.each(users, function(user) { %>
+    <tr>
+		<td><%= htmlEncode(user.getDisplay('userName')) %></td>
+		<td><%= htmlEncode(user.getDisplay('firstName')) %></td>
+		<td><%= htmlEncode(user.getDisplay('lastName')) %></td>
+		<td><%= htmlEncode(user.getDisplay('birthDate')) %></td>
+		<td><%= htmlEncode(user.getDisplay('enable')) %></td>
+		<td><%= htmlEncode(user.getDisplay('docNumber')) %></td>
+		<td><%= htmlEncode(user.getDisplay('documenttypeId')) %></td>
+		<td><%= htmlEncode(user.getDisplay('roleId')) %></td>
+    <td>
+    <% if(showEdit) {%>
+    <a onclick="Backbone.trigger('<%= componentId %>-user-edit',{id:<%= user.id %>}); return false" >Edit</a> |
+	<% } %> 
+	<% if(showDelete) {%>
+    <a onclick="Backbone.trigger('<%= componentId %>-user-delete',{id:<%= user.id %>}); return false" >Delete</a> 
+	<% } %>    
+	</td>
+    </tr>
+    <% }); %>
+    </tbody>
+    </table>
+    </div>
+</script>
+
+<script type="text/template" id="user">
+    <div class="form-group">
+    <form role="form" id="<%= componentId %>-userForm">
+    <% if(user.id) {%>
+    <input type="hidden" name="id" value="<%= user.id %>"/>
+    <% }%>
+		<div class="form-group" >
+		<label for="userName">User Name</label>
+    	<input type="text" class="form-control" id="userName" name="userName" placeholder="Enter value" value="<%= user.get('userName') %>"/>	
+		</div>
+		<div class="form-group" >
+		<label for="firstName">First Name</label>
+    	<input type="text" class="form-control" id="firstName" name="firstName" placeholder="Enter value" value="<%= user.get('firstName') %>"/>	
+		</div>
+		<div class="form-group" >
+		<label for="lastName">Last Name</label>
+    	<input type="text" class="form-control" id="lastName" name="lastName" placeholder="Enter value" value="<%= user.get('lastName') %>"/>	
+		</div>
+		<div class="form-group" >
+			<label for="birthDate">Birth Date</label>
+    		<input type="text" data-converter="date" data-date-format="dd/mm/yyyy" class="form-control" id="birthDate"  name="birthDate" placeholder="Enter value" />
+    		<%= '<scr'+'ipt>' %>
+        	$('#birthDate').datepicker({autoclose:true});
+        	$('#birthDate').datepicker('setDate',App.Utils.Converter.date.toDate("<%= user.get('birthDate') %>"));
+    		<%= '</scr'+'ipt>' %>
+		</div>
+		<div class="form-group" >
+	    <label>
+    	  <input id="enable" name="enable" value="true" type="checkbox" <%= user.get('enable')?'checked':'' %>> Enable
+    	</label>
+		</div>
+		<div class="form-group" >
+		<label for="docNumber">Doc Number</label>
+    	<input type="text" class="form-control" id="docNumber" name="docNumber" placeholder="Enter value" value="<%= user.get('docNumber') %>"/>	
+		</div>
+		<div class="form-group" >
+ 
+			<label for="documenttypeidId">Documenttype Id</label> 
+            <select class="form-control" id="documenttypeId" name="documenttypeId">
+			  <option value="">None</option>
+            <% documentType.each(function(documenttypeid) { %> 
+              <option value="<%=documenttypeid.get('id')%>" <% if(user.get('documenttypeId')==documenttypeid.get('id')) {%>selected<%}%> ><%=documenttypeid.get('name')%></option>
+            <% }); %>                
+            </select>  
+		</div>
+		<div class="form-group" >
+ 
+			<label for="roleidId">Role Id</label> 
+            <select class="form-control" id="roleId" name="roleId">
+			  <option value="">None</option>
+            <% role.each(function(roleid) { %> 
+              <option value="<%=roleid.get('id')%>" <% if(user.get('roleId')==roleid.get('id')) {%>selected<%}%> ><%=roleid.get('name')%></option>
+            <% }); %>                
+            </select>  
+		</div>
+    </form>
+    </div>
+</script> 

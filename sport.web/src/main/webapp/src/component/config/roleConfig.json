@@ -1,0 +1,9 @@
+{
+    "displayName" : "Role",
+    "name" : "role",
+    "templateName" : "role",
+    "url" : "user.html",
+    "server": "localhost:8080",
+    "context": "/sport.web/webresources/Role",
+    "el" : "#main"
+}

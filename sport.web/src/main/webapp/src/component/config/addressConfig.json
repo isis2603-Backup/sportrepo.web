@@ -1,0 +1,9 @@
+{
+    "displayName" : "Address",
+    "name" : "address",
+    "templateName" : "address",
+    "url" : "user.html",
+    "server": "localhost:8080",
+    "context": "/sport.web/webresources/Address",
+    "el" : "#main"
+}
