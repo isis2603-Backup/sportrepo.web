@@ -2,88 +2,84 @@ package co.edu.uniandes.csw.user.master.logic.mock;
 
 import co.edu.uniandes.csw.address.logic.api._IAddressLogicService;
 import co.edu.uniandes.csw.address.logic.dto.AddressDTO;
-import co.edu.uniandes.csw.address.persistence.api.IAddressPersistence;
+
 import co.edu.uniandes.csw.sport.logic.api.ISportLogicService;
 import co.edu.uniandes.csw.sport.logic.dto.SportDTO;
-import co.edu.uniandes.csw.sport.persistence.api.ISportPersistence;
-import co.edu.uniandes.csw.user.logic.api._IUserLogicService;
-import co.edu.uniandes.csw.user.logic.dto.UserDTO;
+
+import co.edu.uniandes.csw.user.logic.api.IUserLogicService;
 import co.edu.uniandes.csw.user.master.logic.api._IUserMasterLogicService;
 import co.edu.uniandes.csw.user.master.logic.dto.UserMasterDTO;
 
-import co.edu.uniandes.csw.user.persistence.api.IUserPersistence;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 
 public abstract class _UserMasterLogicService implements _IUserMasterLogicService {
 
-  
-    protected static ArrayList<UserMasterDTO> userMasterDtosList;
+    protected static ArrayList<UserMasterDTO> userMasterDtosList = new ArrayList<UserMasterDTO>() ;
     @Inject
     protected _IAddressLogicService addressPersistance;
     @Inject
-    protected ISportLogicService sportPersistance; 
-   
+    protected ISportLogicService sportPersistance;
+    @Inject
+    protected IUserLogicService userPersistance;
 
     public UserMasterDTO createMasterUser(UserMasterDTO user) {
-        
+
+        userPersistance.createUser(user.getUserEntity());
         List<AddressDTO> detailsAddress = user.getCreateAddress();
         for (AddressDTO addressDTO : detailsAddress) {
-            addressPersistance.createAddress(addressDTO);
+            addressDTO = addressPersistance.createAddress(addressDTO);
         }
-        
+
         List<SportDTO> detailsSport = user.getCreateSport();
         for (SportDTO sportDTO : detailsSport) {
-            sportPersistance.createSport(sportDTO);
+            sportDTO = sportPersistance.createSport(sportDTO);
         }
-        
-        /*UserDTO persistedUserDTO = userPersistance.createUser(user.getUserEntity());
-        if (user.getCreateAddress() != null) {
-            for (AddressDTO addressDTO : user.getCreateAddress()) {
-                AddressDTO persistedAddressDTO = addressPersistance.createAddress(addressDTO);
-                UserAddressEntity userAddressEntity = new UserAddressEntity(persistedUserDTO.getId(), persistedAddressDTO.getId());
-                userMasterPersistance.createUserAddress(userAddressEntity);
-            }
-        }
-        if (user.getCreateSport() != null) {
-            for (SportDTO sportDTO : user.getCreateSport()) {
-                SportDTO persistedSportDTO = sportPersistance.createSport(sportDTO);
-                UserSportEntity userSportEntity = new UserSportEntity(persistedUserDTO.getId(), persistedSportDTO.getId());
-                userMasterPersistance.createUserSport(userSportEntity);
-            }
-        }
-        // update sport
-        if (user.getUpdateSport() != null) {
-            for (SportDTO sportDTO : user.getUpdateSport()) {
-                sportPersistance.updateSport(sportDTO);
-                UserSportEntity userSportEntity = new UserSportEntity(persistedUserDTO.getId(), sportDTO.getId());
-                userMasterPersistance.createUserSport(userSportEntity);
-            }
-        }
-        return user;*/
-        return null;
+
+        userMasterDtosList.add(user);
+        return user;
     }
 
     public UserMasterDTO getMasterUser(Long id) {
-        //return userMasterPersistance.getUser(id);
+        for (UserMasterDTO userMasterDTO : userMasterDtosList) {
+            if (userMasterDTO.getUserEntity().getId() == id) {
+                return userMasterDTO;
+            }
+        }
+
         return null;
     }
 
     public void deleteMasterUser(Long id) {
-        //userPersistance.deleteUser(id);
+        for (UserMasterDTO userMasterDTO : userMasterDtosList) {
+            if (userMasterDTO.getUserEntity().getId() == id) {
+
+                List<AddressDTO> detailsAddress = userMasterDTO.getCreateAddress();
+                for (AddressDTO addressDTO : detailsAddress) {
+                    addressPersistance.deleteAddress(addressDTO.getId());
+                }
+
+                List<SportDTO> detailsSport = userMasterDTO.getCreateSport();
+                for (SportDTO sportDTO : detailsSport) {
+                    sportPersistance.deleteSport(sportDTO.getId());
+                }
+                userPersistance.deleteUser(userMasterDTO.getId());
+                userMasterDtosList.remove(userMasterDTO);
+            }
+        }
+
     }
 
     public void updateMasterUser(UserMasterDTO user) {
-       /* //userPersistance.updateUser(user.getUserEntity());
 
+         //userPersistance.updateUser(user.getUserEntity());
         //---- FOR RELATIONSHIP
         // persist new address
         if (user.getCreateAddress() != null) {
             for (AddressDTO addressDTO : user.getCreateAddress()) {
                 AddressDTO persistedAddressDTO = addressPersistance.createAddress(addressDTO);
-                UserAddressEntity userAddressEntity = new UserAddressEntity(user.getUserEntity().getId(), persistedAddressDTO.getId());
-                userMasterPersistance.createUserAddress(userAddressEntity);
+                addressDTO = persistedAddressDTO;
             }
         }
         // update address
@@ -95,32 +91,30 @@ public abstract class _UserMasterLogicService implements _IUserMasterLogicServic
         // delete address
         if (user.getDeleteAddress() != null) {
             for (AddressDTO addressDTO : user.getDeleteAddress()) {
-                userMasterPersistance.deleteUserAddress(user.getUserEntity().getId(), addressDTO.getId());
+
                 addressPersistance.deleteAddress(addressDTO.getId());
             }
         }
         // delete sport
         if (user.getDeleteSport() != null) {
             for (SportDTO sportDTO : user.getDeleteSport()) {
-                userMasterPersistance.deleteUserSport(user.getUserEntity().getId(), sportDTO.getId());
+
+                sportPersistance.deleteSport(sportDTO.getId());
+
             }
         }
         // persist new sport
         if (user.getCreateSport() != null) {
             for (SportDTO sportDTO : user.getCreateSport()) {
-                UserSportEntity userSportEntity = new UserSportEntity(user.getUserEntity().getId(), sportDTO.getId());
-                userMasterPersistance.createUserSport(userSportEntity);
+
+                sportPersistance.deleteSport(sportDTO.getId());
             }
         }
         // update sport
         if (user.getUpdateSport() != null) {
             for (SportDTO sportDTO : user.getUpdateSport()) {
-                userMasterPersistance.deleteUserSport(user.getUserEntity().getId(), sportDTO.getId());
                 sportPersistance.updateSport(sportDTO);
-                UserSportEntity userSportEntity = new UserSportEntity(user.getId(), sportDTO.getId());
-                userMasterPersistance.createUserSport(userSportEntity);
-                
             }
-        }*/
+        }
     }
 }
